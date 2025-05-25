@@ -11,43 +11,33 @@ const {
   GraphQLSchema,
   GraphQLID,
   GraphQLInt,
+  GraphQLList,
 } = graphql;
 
 // dummy data
 let books = [
+  { name: "Dom Casmurro", genre: "Romance", id: "1", authorId: "1" },
+  { name: "O Senhor dos Anéis", genre: "Fantasia", id: "2", authorId: "2" },
+  { name: "1984", genre: "Distopia", id: "3", authorId: "3" },
   {
-    name: "Dom Casmurro",
-    genre: "Romance",
-    id: "1",
+    name: "Memórias Póstumas de Brás Cubas",
+    genre: "Realismo",
+    id: "4",
+    authorId: "1",
   },
+  { name: "O Hobbit", genre: "Fantasia", id: "5", authorId: "2" },
   {
-    name: "O Senhor dos Anéis",
-    genre: "Fantasia",
-    id: "2",
-  },
-  {
-    name: "1984",
-    genre: "Distopia",
-    id: "3",
+    name: "A Revolução dos Bichos",
+    genre: "Sátira Política",
+    id: "6",
+    authorId: "3",
   },
 ];
 
 let authors = [
-  {
-    name: "Machado de Assis",
-    age: 69,
-    id: "1",
-  },
-  {
-    name: "J.R.R. Tolkien",
-    age: 81,
-    id: "2",
-  },
-  {
-    name: "George Orwell",
-    age: 46,
-    id: "3",
-  },
+  { name: "Machado de Assis", age: 69, id: "1" },
+  { name: "J.R.R. Tolkien", age: 81, id: "2" },
+  { name: "George Orwell", age: 46, id: "3" },
 ];
 
 // To define types,
@@ -58,6 +48,15 @@ const BookType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     genre: { type: GraphQLString },
+    author: {
+      type: AuthorType,
+      resolve(parent, args) {
+        console.log(parent);
+        return authors.find((author) => {
+          return author.id == parent.authorId;
+        });
+      },
+    },
   }),
 });
 
@@ -67,6 +66,14 @@ const AuthorType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     age: { type: GraphQLInt },
+    books: {
+      type: new GraphQLList(BookType),
+      resolve(parent, args) {
+        return books.filter((book) => {
+          return parent.id == book.authorId;
+        });
+      },
+    },
   }),
 });
 
